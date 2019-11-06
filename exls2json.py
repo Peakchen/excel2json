@@ -21,7 +21,7 @@ def loopOpenXld():
     for file in glob.glob("*.xls"):
         wb = xlrd.open_workbook(file)
         sheets = wb.sheets()
-        print "show sheets list: "
+        #print "show sheets list: "
         for sheet in sheets:
             exportSheet(sheet)
 
