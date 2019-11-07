@@ -23,8 +23,10 @@ from exls2lua import exportLuaFile
 totaltabName = "总揽"
 totaltabs = {}
 
+# purpose: read file and start export
+# param1: need export aim file.
+# param2: filter condition.
 def loopExportXld(dstfile, filter):
-
     print os.getcwd()
     for file in glob.glob("*.xls"):
         wb = xlrd.open_workbook(file)
@@ -43,8 +45,9 @@ def exportSheet(sheet, dstfile, filter):
         print shn
         export2File(sheet, dstfile, filter)
 
-#
-# 获取总揽数据
+# purpose: export total table from others exported.
+# param: tab sheet.
+
 def exportTotalTab(sheet):
     print sheet.name
     rows = sheet.get_rows()
@@ -64,7 +67,10 @@ def exportTotalTab(sheet):
         totaltabs[tablename] = {'isexport':isexport, 'begincol': begincol, 'endcol': endcol} 
         #print totaltabs
 
-# 开始导出xls数据到xxx文件中
+# begin export operation.
+# param1: tab sheet.
+# param2: need export aim file.
+# param3: filter condition.
 def export2File(sheet, dstfile, filter):
     convertlist = []
     shn = sheet.name
@@ -86,7 +92,7 @@ def export2File(sheet, dstfile, filter):
         if row[0].value == 'CLOSE':
             break
 
-        if rowidx == 2 and row[1].value != shn: # 获取表名，是否可导出
+        if rowidx == 2 and row[1].value != shn: # if not exist, then exist.
             return
 
         #print row
@@ -143,7 +149,7 @@ def export2File(sheet, dstfile, filter):
         if rowidx >= 7 and colitemtypes.has_key(strRowidx):
             convertlist.append(colitemtypes[strRowidx])
 
-    createRow = colitemtypes['2'] # 获取表名，是否可导出
+    createRow = colitemtypes['2'] # get table file, judge it can be export.
     if totaltabs.has_key(createRow['2']) == True and len(convertlist) > 0:
         print "find it, it can be export."
         if dstfile == "Json":
