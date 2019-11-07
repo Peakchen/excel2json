@@ -1,7 +1,7 @@
 #encoding: utf-8 
 
 # add by stefan 20191106 20:14 for develop.
-# xls export json file.
+# xls export lua file.
 
 import xlrd 
 from collections import OrderedDict
@@ -12,12 +12,13 @@ import os,sys
 import os.path
 import re
 
+reload(sys)
+sys.setdefaultencoding("utf8")
 
 totaltabName = "总揽"
 totaltabs = {}
 
-def loopOpenXld():
-
+def loopOpenXld2Lua():
     print os.getcwd()
     for file in glob.glob("*.xls"):
         wb = xlrd.open_workbook(file)
@@ -34,7 +35,7 @@ def exportSheet(sheet):
         exportTotalTab(sheet)
     else:
         print shn
-        exportJosn(sheet)
+        exportLua(sheet)
 
 #
 # 获取总揽数据
@@ -58,8 +59,8 @@ def exportTotalTab(sheet):
         #print totaltabs
 
 # 开始导出xls数据到json文件中
-def exportJosn(sheet):
-    convertJson_list = []
+def exportLua(sheet):
+    convertlua_list = []
     shn = sheet.name
     shn = shn.encode("UTF-8")  
     if totaltabs.has_key(shn) == False:
@@ -100,7 +101,7 @@ def exportJosn(sheet):
                 rowdata = colitemtypes['3']
                 if rowdata.has_key(strcolidx) == True:
                     totallimit = expitem['endcol'] - 1
-                    if len(rowdata) == totallimit and rowdata[strcolidx] == 'c' :
+                    if len(rowdata) == totallimit and rowdata[strcolidx] == 's' :
                         continue
             
             if colitemtypes.has_key('4') == True and rowidx >= 7:
@@ -110,6 +111,7 @@ def exportJosn(sheet):
                         if rowdata[strcolidx] == 'Integer':
                             colval = int(colval)
                         elif rowdata[strcolidx] == 'String':
+                            print colval
                             colval = str(colval)
                         elif rowdata[strcolidx] == 'Float':
                             colval = float(colval)   
@@ -134,16 +136,51 @@ def exportJosn(sheet):
                     colitemtypes[strRowidx].update({strcolidx: colval})  
 
         if rowidx >= 7 and colitemtypes.has_key(strRowidx):
-            convertJson_list.append(colitemtypes[strRowidx])
+            convertlua_list.append(colitemtypes[strRowidx])
 
     createRow = colitemtypes['2'] # 获取表名，是否可导出
-    if totaltabs.has_key(createRow['2']) == True and len(convertJson_list) > 0:
+    if totaltabs.has_key(createRow['2']) == True and len(convertlua_list) > 0:
         print "find it, it can be export."
-        exportf = json.dumps(convertJson_list, ensure_ascii=False) 
-        with codecs.open(shn+'.json', "w", "utf-8") as target:
-            target.write(exportf)
+        #开始导出lua数据
+        beginExportLua(shn, convertlua_list)
 
-loopOpenXld()
+
+def beginExportLua(filename, list):
+    print list
+    filecontext = "local " + filename + " = {\n"
+    filecontext += "values = {"
+    #print filecontext
+    rowidx = 0
+    for items in list:
+        rowidx = rowidx + 1
+        colidx = 0
+        filecontext += "{"
+        for item in items:
+            colidx = colidx + 1
+            value = items[item]
+            if isinstance(value, int):
+                strvalue = '{}'.format(value)
+                filecontext += item + "=" + strvalue
+            elif isinstance(value, str):
+                print value
+                value = value.encode("UTF-8") 
+                filecontext += item + "=" + '"' +value + '"'
+
+            if colidx == len(items) and rowidx < len(list):
+                filecontext += "},\n"
+            elif colidx == len(items) and rowidx == len(list):
+                filecontext += "}\n"
+            else:
+                filecontext += ","
+
+    filecontext += "}\n"
+    filecontext += "}\n"
+
+    print filecontext
+    with codecs.open(filename+'.lua', "w", "utf-8") as target:
+        target.write(filecontext)
+
+loopOpenXld2Lua()
 
 
 
