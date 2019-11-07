@@ -161,8 +161,6 @@ def export2File(sheet, dstfile, filter):
 def _main_():
     for file in ExportFiles:
         filter = ExportFilter[file]
-        print file
-        print filter
         loopExportXld(file, filter)
 
 
