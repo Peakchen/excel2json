@@ -20,7 +20,7 @@ from define import ExportFiles, ExportFilter
 from exls2json import exportJsonFile
 from exls2lua import exportLuaFile
 
-totaltabName = "总揽"
+totaltabName = "total"
 totaltabs = {}
 
 # purpose: read file and start export
@@ -79,6 +79,9 @@ def export2File(sheet, dstfile, filter):
         return
 
     expitem = totaltabs[shn]
+    if expitem['isexport'] == "no":
+        return
+        
     #print expitem
     rows = sheet.get_rows()
     rowidx = 0
