@@ -79,7 +79,8 @@ def export2File(sheet, dstfile, filter):
         return
 
     expitem = totaltabs[shn]
-    if expitem['isexport'] == "no":
+    exportflag = expitem['isexport']
+    if exportflag.lower() == "no":
         return
         
     #print expitem
