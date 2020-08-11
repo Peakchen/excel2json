@@ -11,6 +11,8 @@ if  %findpip% == 1 (
 	echo "need download pip"
 	rem python downpip.py
 	python -m pip install -U pip
+	python -m ensurepip
+	easy_install pip
 )
   
 pip install xlrd
